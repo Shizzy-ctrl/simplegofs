@@ -85,7 +85,7 @@
 
             <section class="admin-controls">
                 <h2>Upload File</h2>
-                <form action="/upload" method="POST" enctype="multipart/form-data" class="upload-form">
+                <form action="/admin/upload" method="POST" enctype="multipart/form-data" class="upload-form">
                     <div class="form-group">
                         <label for="file">Select File</label>
                         <input type="file" id="file" name="file" required>
@@ -111,7 +111,7 @@
                             <td class="filename">{{.Name}}</td>
                             <td>{{.Size}}</td>
                             <td class="permission-cell">
-                                <form action="/permissions" method="POST">
+                                <form action="/admin/permissions" method="POST">
                                     <input type="hidden" name="filename" value="{{.Name}}">
                                     {{range $user := $.Users}}
                                         <label class="user-checkbox">
