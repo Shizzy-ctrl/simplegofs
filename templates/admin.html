@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - File Server</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .admin-controls {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+        .upload-form {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        .form-group {
+            flex-grow: 1;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.5rem;
+        }
+        .user-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.9rem;
+        }
+        .permission-cell form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .perm-check {
+             cursor: pointer;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Admin Dashboard</h1>
+            <div class="user-controls">
+                <span class="user-info">Logged in as: <strong>{{.Username}}</strong></span>
+                <a href="/admin/users" class="btn" style="background: transparent; border: 1px solid white; color: white; margin-left: 10px;">Manage Users</a>
+                <a href="/" class="btn" style="background: transparent; border: 1px solid white; color: white; margin-left: 10px;">Back to Files</a>
+                <form action="/logout" method="POST" style="display: inline;">
+                    <button type="submit" class="btn" style="background: transparent; border: 1px solid white; color: white;">Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <main>
+            {{if .Error}}
+            <div style="background: #e74c3c; color: white; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                {{.Error}}
+            </div>
+            {{end}}
+            
+            {{if .Success}}
+            <div style="background: #27ae60; color: white; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                {{.Success}}
+            </div>
+            {{end}}
+
+            <section class="admin-controls">
+                <h2>Upload File</h2>
+                <form action="/upload" method="POST" enctype="multipart/form-data" class="upload-form">
+                    <div class="form-group">
+                        <label for="file">Select File</label>
+                        <input type="file" id="file" name="file" required>
+                    </div>
+                    <button type="submit" class="btn btn-download">Upload</button>
+                </form>
+            </section>
+
+            <section>
+                <h2>Manage Permissions</h2>
+                <p style="margin-bottom: 1rem; color: var(--text-light);">Check users who can access each file.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Filename</th>
+                            <th>Size</th>
+                            <th>User Access</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {{range $file := .Files}}
+                        <tr>
+                            <td class="filename">{{.Name}}</td>
+                            <td>{{.Size}}</td>
+                            <td class="permission-cell">
+                                <form action="/permissions" method="POST">
+                                    <input type="hidden" name="filename" value="{{.Name}}">
+                                    {{range $user := $.Users}}
+                                        <label class="user-checkbox">
+                                            <input type="checkbox" name="users" value="{{$user}}" 
+                                                class="perm-check"
+                                                {{if (index $file.Permissions $user)}}checked{{end}}
+                                                onchange="this.form.submit()"> 
+                                            {{$user}}
+                                        </label>
+                                    {{end}}
+                                </form>
+                            </td>
+                        </tr>
+                    {{end}}
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

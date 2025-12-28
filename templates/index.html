@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>FileServer</title>
+	<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+	<div class="container">
+		<header>
+			<h1>File Server</h1>
+			<div class="user-controls">
+				<span class="user-info">Logged in as: <strong>{{.Username}}</strong></span>
+				{{if .IsAdmin}}
+				<a href="/admin" class="btn btn-preview" style="margin-left: 10px;">Admin Panel</a>
+				{{end}}
+				<form action="/logout" method="POST" style="display: inline;">
+					<button type="submit" class="btn" style="background: transparent; border: 1px solid white; color: white;">Logout</button>
+				</form>
+			</div>
+		</header>
+		
+		<main class="file-list">
+			{{if .Files}}
+			<table>
+				<thead>
+					<tr>
+						<th>Filename</th>
+						<th>Size</th>
+						<th class="actions-col">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+				{{range .Files}}
+					<tr>
+						<td class="filename">
+							{{if .IsPreviewable}}
+								<a href="/files/{{.Name}}" target="_blank">{{.Name}}</a>
+							{{else}}
+								{{.Name}}
+							{{end}}
+						</td>
+						<td class="filesize">{{.Size}}</td>
+						<td class="actions">
+							{{if .IsPreviewable}}
+								<a href="/files/{{.Name}}" target="_blank" class="btn btn-preview">Preview</a>
+							{{end}}
+							<a href="/download/{{.Name}}" class="btn btn-download">Download</a>
+						</td>
+					</tr>
+				{{end}}
+				</tbody>
+			</table>
+			{{else}}
+			<div class="empty-state">
+				<p>No files available for you.</p>
+			</div>
+			{{end}}
+		</main>
+	</div>
+</body>
+</html>

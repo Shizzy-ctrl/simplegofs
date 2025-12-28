@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - File Server</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .user-management {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+        .user-form {
+            display: grid;
+            gap: 1rem;
+            max-width: 500px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .form-group label {
+            font-weight: 500;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="password"] {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .user-table {
+            margin-top: 2rem;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .btn-danger {
+            background: #e74c3c;
+        }
+        .btn-warning {
+            background: #f39c12;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>User Management</h1>
+            <div class="user-controls">
+                <span class="user-info">Logged in as: <strong>{{.Username}}</strong></span>
+                <a href="/admin" class="btn" style="background: transparent; border: 1px solid white; color: white; margin-left: 10px;">Back to Admin</a>
+                <form action="/logout" method="POST" style="display: inline;">
+                    <button type="submit" class="btn" style="background: transparent; border: 1px solid white; color: white;">Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <main>
+            {{if .Error}}
+            <div style="background: #e74c3c; color: white; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                {{.Error}}
+            </div>
+            {{end}}
+            
+            {{if .Success}}
+            <div style="background: #27ae60; color: white; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                {{.Success}}
+            </div>
+            {{end}}
+
+            <section class="user-management">
+                <h2>Create New User</h2>
+                <form action="/admin/create-user" method="POST" class="user-form">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="is_admin" value="true">
+                            Administrator privileges
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-download">Create User</button>
+                </form>
+            </section>
+
+            <section class="user-table">
+                <h2>Existing Users</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {{range .Users}}
+                        <tr>
+                            <td class="filename">{{.Username}}</td>
+                            <td>{{if .IsAdmin}}Administrator{{else}}User{{end}}</td>
+                            <td class="action-buttons">
+                                <form action="/admin/reset-password" method="POST" style="display: inline;" onsubmit="return prompt('Enter new password for {{.Username}}:') !== null && (this.querySelector('input[name=new_password]').value = prompt('Enter new password for {{.Username}}:'))">
+                                    <input type="hidden" name="username" value="{{.Username}}">
+                                    <input type="hidden" name="new_password" value="">
+                                    <button type="submit" class="btn btn-warning">Reset Password</button>
+                                </form>
+                                {{if not .IsAdmin}}
+                                <form action="/admin/delete-user" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete user {{.Username}}?');">
+                                    <input type="hidden" name="username" value="{{.Username}}">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                                {{end}}
+                            </td>
+                        </tr>
+                    {{end}}
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
