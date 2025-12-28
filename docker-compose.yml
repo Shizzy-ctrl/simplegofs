@@ -1,9 +1,39 @@
-version: '3.8'
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: fileserver
+      POSTGRES_PASSWORD: fileserver_pass
+      POSTGRES_DB: fileserver
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fileserver"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   fileserver:
     build: .
     ports:
       - "8080:8080"
     volumes:
       - ./files:/app/files
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=fileserver
+      - DB_PASSWORD=fileserver_pass
+      - DB_NAME=fileserver
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  postgres_data:
