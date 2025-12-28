@@ -73,13 +73,13 @@ func main() {
 	app.All("/login", authHandlers.LoginHandler)
 	app.Post("/logout", authHandlers.LogoutHandler)
 
-	// Protected routes
-	app.Use(middleware.RequireAuth())
+	// Protected routes group
+	protected := app.Group("/", middleware.RequireAuth())
 
 	// File routes
-	app.Get("/", fileHandlers.FileListHandler)
-	app.Get("/files/*", fileHandlers.FileHandler)
-	app.Get("/download/*", fileHandlers.DownloadHandler)
+	protected.Get("/", fileHandlers.FileListHandler)
+	protected.Get("/files/*", fileHandlers.FileHandler)
+	protected.Get("/download/*", fileHandlers.DownloadHandler)
 
 	// Admin routes
 	admin := app.Group("/admin", middleware.RequireAdmin())

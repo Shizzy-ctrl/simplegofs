@@ -99,6 +99,10 @@ func (h *FileHandlers) FileHandler(c *fiber.Ctx) error {
 	contentType := getContentType(ext)
 
 	c.Set("Content-Type", contentType)
+	// Disable caching for sensitive files
+	c.Set("Cache-Control", "private, no-cache, no-store, must-revalidate")
+	c.Set("Pragma", "no-cache")
+	c.Set("Expires", "0")
 
 	if !isPreviewable(ext) {
 		c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
@@ -129,6 +133,10 @@ func (h *FileHandlers) DownloadHandler(c *fiber.Ctx) error {
 
 	c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
 	c.Set("Content-Type", "application/octet-stream")
+	// Disable caching
+	c.Set("Cache-Control", "private, no-cache, no-store, must-revalidate")
+	c.Set("Pragma", "no-cache")
+	c.Set("Expires", "0")
 
 	return c.SendFile(filepath)
 }
