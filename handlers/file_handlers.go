@@ -72,6 +72,15 @@ func (h *FileHandlers) FileListHandler(c *fiber.Ctx) error {
 
 // FileHandler serves or previews a file
 func (h *FileHandlers) FileHandler(c *fiber.Ctx) error {
+	// Redundant auth check
+	token := c.Cookies("session_token")
+	if token == "" {
+		return c.Redirect("/login")
+	}
+	if _, valid := middleware.GetSession(token); !valid {
+		return c.Redirect("/login")
+	}
+
 	username := c.Locals("username").(string)
 	isAdmin := c.Locals("isAdmin").(bool)
 
@@ -113,6 +122,15 @@ func (h *FileHandlers) FileHandler(c *fiber.Ctx) error {
 
 // DownloadHandler forces file download
 func (h *FileHandlers) DownloadHandler(c *fiber.Ctx) error {
+	// Redundant auth check
+	token := c.Cookies("session_token")
+	if token == "" {
+		return c.Redirect("/login")
+	}
+	if _, valid := middleware.GetSession(token); !valid {
+		return c.Redirect("/login")
+	}
+
 	username := c.Locals("username").(string)
 	isAdmin := c.Locals("isAdmin").(bool)
 
